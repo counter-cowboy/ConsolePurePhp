@@ -6,7 +6,10 @@ require_once 'app/UserJson.php';
 
 $envArr = explode('=', file_get_contents('.env'));
 
+// Когда будет вторая часть - вытащим это всё в отдельные сервисы.
+
 if ($envArr[1] === 'json') {
+
     $dataFile = 'users.json';
 
     $userJson = new UserJson();
@@ -18,7 +21,6 @@ if ($envArr[1] === 'json') {
 
                 if (!empty($users)) {
                     echo "User list:\n";
-
                     echo "ID---Name--------------Email\n";
 
                     foreach ($users as $user) {
@@ -79,9 +81,7 @@ if ($envArr[1] === 'json') {
 
             default:
                 echo "Unknown command";
-
         }
-
 
     } else {
         echo "Enter a command! Input 'help' for list of available commands. \n";
