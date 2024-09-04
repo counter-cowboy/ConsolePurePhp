@@ -93,7 +93,14 @@ if ($envArr[1] === 'json') {
     } else {
         echo "Enter a command! Input 'help' for list of available commands. \n";
     }
-} elseif ($envArr[1] === 'mysql') {
+}
+/*
+  * Stage 2
+  *
+  * MySQL
+  *
+  */
+elseif ($envArr[1] === 'mysql') {
 
     if (isset($argv[1])) {
         switch ($argv[1]) {
