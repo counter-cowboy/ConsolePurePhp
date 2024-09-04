@@ -1,11 +1,12 @@
 <?php
 
 $host = 'localhost';
-$data = 'console';
+$db = 'console';
 $user = 'user';
 $pass = 'poiuy';
 $chrs = 'utf8mb4';
-$attr = "mysql:host=$host;dbname=$data;charset=$chrs";
+$port=3306;
+$dsn = "mysql:host=$host;dbname=$db;port=$port;charset=$chrs";
 $opts = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE=> PDO::FETCH_ASSOC,
@@ -13,7 +14,7 @@ $opts = [
 ];
 
 try {
-    $pdo = new PDO($attr, $user, $pass, $opts);
+    $pdo = new PDO($dsn, $user, $pass, $opts);
 }
 catch (PDOException $exception)
 {

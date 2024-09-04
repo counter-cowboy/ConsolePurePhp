@@ -1,18 +1,25 @@
 <?php
 
+use app\UserHttp;
 use app\UserJson;
+use app\UserMysql;
+
+header('Content-Type:application/json');
 
 require_once 'app/UserJson.php';
+require_once 'app/UserMysql.php';
+require_once 'DB/DB.php';
 
 $envArr = explode('=', file_get_contents('.env'));
 
 // Когда будет вторая часть - вытащим это всё в отдельные сервисы.
 
+$userJson = new UserJson();
+$userMysql = new UserMysql();
+
 if ($envArr[1] === 'json') {
 
     $dataFile = 'users.json';
-
-    $userJson = new UserJson();
 
     if (isset($argv[1])) {
         switch ($argv[1]) {
@@ -86,5 +93,41 @@ if ($envArr[1] === 'json') {
     } else {
         echo "Enter a command! Input 'help' for list of available commands. \n";
     }
-}
+} elseif ($envArr[1] === 'mysql') {
 
+    if (isset($argv[1])) {
+        switch ($argv[1]) {
+            case 'list':
+                $userMysql->getUsers();
+                break;
+
+            case 'add':
+                $userMysql->saveUsers();
+            break;
+
+            case 'delete':
+                if (isset($argv[2])) {
+                    $id = (int)$argv[2];
+                   $userMysql->deleteUser($id);
+                } else {
+                    echo "User ID was not set.\n";
+                }
+            break;
+
+            case 'help':
+                echo "Commands:\n";
+                echo "list - Show all users.\n";
+                echo "add - Add random user to list.\n";
+                echo "delete id - Delete user by ID. \n";
+
+            break;
+
+            default:
+                echo "Unknown command";
+        }
+
+    } else {
+        echo "Enter a command! Input 'help' for list of available commands. \n";
+    }
+
+}
