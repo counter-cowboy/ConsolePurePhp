@@ -3,10 +3,7 @@
 namespace app;
 
 use DB\DB;
-use http\Exception;
 use Interfaces\UserInterface;
-use PDO;
-use PDOException;
 use Services\Service;
 
 
@@ -17,7 +14,7 @@ class UserMysql implements UserInterface
         $pdo = DB::getConnection();
         $stmt = $pdo->prepare("SELECT * FROM users");
         $stmt->execute();
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $users = $stmt->fetchAll(2);
 
         if (!empty($users)) {
             echo "ID --Name-------------Email\n\n";

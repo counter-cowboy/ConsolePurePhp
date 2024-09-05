@@ -1,9 +1,7 @@
 <?php
 
-use app\UserHttp;
 use app\UserJson;
 use app\UserMysql;
-use DB\DB;
 use Services\Service;
 
 header('Content-Type:application/json');
@@ -12,6 +10,7 @@ require_once 'app/UserJson.php';
 require_once 'app/UserMysql.php';
 require_once 'DB/DB.php';
 require_once 'Services/Service.php';
+require_once 'Interfaces/UserInterface.php';
 
 $envArr = explode('=', file_get_contents('.env'));
 
