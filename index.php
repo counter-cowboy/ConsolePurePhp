@@ -27,18 +27,9 @@ if ($envArr[1] === 'json') {
     if (isset($argv[1])) {
         switch ($argv[1]) {
             case 'list':
-                $users = $userJson->getUsers($dataFile);
+                 $userJson->getUsers();
 
-                if (!empty($users)) {
-                    echo "User list:\n";
-                    echo "ID---Name--------------Email\n";
 
-                    foreach ($users as $user) {
-                        echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email'] . "\n";
-                    }
-                } else {
-                    echo "No users in list";
-                }
                 break;
 
             case 'add':

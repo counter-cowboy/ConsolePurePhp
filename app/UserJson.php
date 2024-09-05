@@ -9,15 +9,29 @@ class UserJson implements UserInterface
 {
     public string $dataFile = 'users.json';
 
-    public function getUsers()
+    public function getUsers(): void
     {
         $data = file_get_contents($this->dataFile);
-        return json_decode($data, true);
+        $users = json_decode($data, true);
+
+        if (!empty($users)) {
+            echo "User list:\n";
+            echo "ID---Name--------------Email\n";
+
+            foreach ($users as $user) {
+                echo $user['id'] . ' - '
+                    . $user['name'] . ' - '
+                    . $user['email'] . "\n";
+            }
+        } else {
+            echo "No users in list";
+        }
     }
 
     public function saveUsers(): void
     {
-        $users = $this->getUsers();
+        $data = file_get_contents($this->dataFile);
+        $users = json_decode($data, true);
         $id = $this->generateId();
         $name = Service:: generateName();
         $lastName = Service::generateLastName();
