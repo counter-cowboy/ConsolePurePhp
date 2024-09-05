@@ -2,51 +2,64 @@
 
 namespace app;
 
-class UserJson
+use Interfaces\UserInterface;
+use Services\Service;
+
+class UserJson implements UserInterface
 {
-    public function getUsers($dataFile)
+    public string $dataFile = 'users.json';
+
+    public function getUsers()
     {
-        $data = file_get_contents($dataFile);
+        $data = file_get_contents($this->dataFile);
         return json_decode($data, true);
     }
 
-    public function saveUsers($user, $dataFile)
+    public function saveUsers(): void
     {
-        $data = json_encode($user);
-        file_put_contents($dataFile, $data);
+        $users = $this->getUsers();
+        $id = $this->generateId();
+        $name = Service:: generateName();
+        $lastName = Service::generateLastName();
+        $fullName = $name . ' ' . $lastName;
+        $email = Service::generateEmail($name, $lastName);
+
+        $newUser = [
+            'id' => $id,
+            'name' => $fullName,
+            'email' => $email
+        ];
+
+        $users[] = $newUser;
+
+        $data = json_encode($users);
+        file_put_contents($this->dataFile, $data);
     }
 
-    public function generateId($dataFile): int
+    public function generateId(): int
     {
-        $users = $this->getUsers($dataFile);
+        $users = $this->getUsers();
 
         if (empty($users)) {
             return 1;
         }
-            return end($users)['id'] + 1;
+        return end($users)['id'] + 1;
     }
 
-    public function generateName(): string
+    public function deleteUser($id): void
     {
-        $names = [
-            'John', 'Mike', 'Sarah', 'Emily',
-            'James', 'Robert', 'Mary', 'Patricia', 'Linda'
-        ];
-        return $names[array_rand($names)];
+        $users = $this->getUsers();
+
+        foreach ($users as $key => $user) {
+            if ($user['id'] == $id) {
+
+                unset($users[$key]);
+
+                file_put_contents($this->dataFile, json_encode($users));
+
+                echo "User deleted - $id\n";
+                break;
+            }
+        }
     }
-
-    public function generateLastName(): string
-    {
-        $lastNames = ['Smith', 'Johnson', 'Williams',
-            'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Taylor'
-        ];
-        return $lastNames[array_rand($lastNames)];
-    }
-
-    public function generateEmail($name, $lastName): string
-    {
-        return strtolower($name) . '.'. strtolower($lastName). '@example.com';
-    }
-
-
 }

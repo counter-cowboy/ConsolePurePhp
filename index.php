@@ -3,17 +3,21 @@
 use app\UserHttp;
 use app\UserJson;
 use app\UserMysql;
+use DB\DB;
+use Services\Service;
 
 header('Content-Type:application/json');
 
 require_once 'app/UserJson.php';
 require_once 'app/UserMysql.php';
 require_once 'DB/DB.php';
+require_once 'Services/Service.php';
 
 $envArr = explode('=', file_get_contents('.env'));
 
 // Когда будет вторая часть - вытащим это всё в отдельные сервисы.
 
+$service = new Service();
 $userJson = new UserJson();
 $userMysql = new UserMysql();
 
@@ -39,51 +43,22 @@ if ($envArr[1] === 'json') {
                 break;
 
             case 'add':
-                $users = $userJson->getUsers($dataFile);
-                $id = $userJson->generateId($dataFile);
-                $name = $userJson->generateName();
-                $lastName = $userJson->generateLastName();
-                $fullName = $name . ' ' . $lastName;
-                $email = $userJson->generateEmail($name, $lastName);
-
-                $newUser = [
-                    'id' => $id,
-                    'name' => $fullName,
-                    'email' => $email
-                ];
-
-                $users[] = $newUser;
-                $userJson->saveUsers($users, $dataFile);
-                echo "User was added: $id . $name . ($email)";
+               $userJson->saveUsers();
 
                 break;
 
             case 'delete':
                 if (isset($argv[2])) {
                     $id = (int)$argv[2];
-                    $users = $userJson->getUsers($dataFile);
 
-                    foreach ($users as $key => $user) {
-
-                        if ($user['id'] == $id) {
-                            unset($users[$key]);
-
-                            $userJson->saveUsers($users, $dataFile);
-                            echo "User deleted - $id\n";
-                            break;
-                        }
-                    }
+                    $userJson->deleteUser($id);
                 } else {
                     echo "User ID was not set.\n";
                 }
                 break;
 
             case 'help':
-                echo "Commands:\n";
-                echo "list - Show all users.\n";
-                echo "add - Add random user to list.\n";
-                echo "delete id - Delete user by ID. \n";
-
+               Service::help();
                 break;
 
             default:
@@ -93,8 +68,7 @@ if ($envArr[1] === 'json') {
     } else {
         echo "Enter a command! Input 'help' for list of available commands. \n";
     }
-}
-/*
+} /*
   * Stage 2
   *
   * MySQL
@@ -110,24 +84,20 @@ elseif ($envArr[1] === 'mysql') {
 
             case 'add':
                 $userMysql->saveUsers();
-            break;
+                break;
 
             case 'delete':
                 if (isset($argv[2])) {
                     $id = (int)$argv[2];
-                   $userMysql->deleteUser($id);
+                    $userMysql->deleteUser($id);
                 } else {
                     echo "User ID was not set.\n";
                 }
-            break;
+                break;
 
             case 'help':
-                echo "Commands:\n";
-                echo "list - Show all users.\n";
-                echo "add - Add random user to list.\n";
-                echo "delete id - Delete user by ID. \n";
-
-            break;
+                Service::help();
+                break;
 
             default:
                 echo "Unknown command";

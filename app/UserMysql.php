@@ -2,24 +2,19 @@
 
 namespace app;
 
+use DB\DB;
 use http\Exception;
+use Interfaces\UserInterface;
 use PDO;
 use PDOException;
+use Services\Service;
 
-class UserMysql
+
+class UserMysql implements UserInterface
 {
-    public $user = 'user';
-    public $pass = 'poiuy';
-    public $dsn = "mysql:host='localhost';dbname='console;port=3306";
-    public $opts = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
-    ];
-
     public function getUsers(): void
     {
-        $pdo = self::getConnection();
+        $pdo = DB::getConnection();
         $stmt = $pdo->prepare("SELECT * FROM users");
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -33,17 +28,16 @@ class UserMysql
         } else {
             echo 'No users found';
         }
-
     }
 
     public function saveUsers(): void
     {
-        $pdo = self::getConnection();
+        $pdo = DB::getConnection();
 
-        $name = $this->generateName();
-        $lastName = $this->generateLastName();
+        $name =Service:: generateName();
+        $lastName =Service::generateLastName();
         $fullName = $name . ' ' . $lastName;
-        $email = $this->generateEmail($name, $lastName);
+        $email = Service::generateEmail($name, $lastName);
 
         $stmt = $pdo->prepare("INSERT INTO users(name, email) VALUES (?,?)");
         $stmt->execute([$fullName, $email]);
@@ -55,7 +49,7 @@ class UserMysql
 
     public function deleteUser($id): void
     {
-        $pdo = self::getConnection();
+        $pdo = DB::getConnection();
 
         $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
         $stmt->execute([$id]);
@@ -66,49 +60,6 @@ class UserMysql
             echo "User was deleted: ID - $id, ";
         else
             echo 'Not User-ID found';
-    }
-
-    public function generateName(): string
-    {
-        $names = [
-            'John', 'Mike', 'Sarah', 'Emily',
-            'James', 'Robert', 'Mary', 'Patricia', 'Linda'
-        ];
-        return $names[array_rand($names)];
-    }
-
-    public function generateLastName(): string
-    {
-        $lastNames = ['Smith', 'Johnson', 'Williams',
-            'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Taylor'
-        ];
-        return $lastNames[array_rand($lastNames)];
-    }
-
-    public function generateEmail($name, $lastName): string
-    {
-        return strtolower($name) . '.' . strtolower($lastName) . '@example.com';
-    }
-
-
-    public static function getConnection(): PDO
-    {
-        global $user, $pass, $dsn, $opts;
-
-        try {
-            $pdo = new PDO($dsn, $user, $pass, $opts);
-
-            $pdo->exec("CREATE TABLE IF NOT EXISTS users (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(255) NOT NULL,
-                    email VARCHAR(255) NOT NULL 
-                  )");
-
-        } catch (PDOException $exception) {
-            throw new PDOException($exception->getMessage(), (int)$exception->getCode());
-        }
-
-        return $pdo;
     }
 
 
