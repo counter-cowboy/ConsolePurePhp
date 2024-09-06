@@ -5,6 +5,8 @@ namespace app;
 use Interfaces\UserInterface;
 use Services\Service;
 
+require_once 'Interfaces/UserInterface.php';
+
 class UserJson implements UserInterface
 {
     public string $dataFile = 'users.json';

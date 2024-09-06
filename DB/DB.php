@@ -7,18 +7,16 @@ use PDOException;
 
 class DB
 {
-    public string $user = 'user';
-    public string $pass = 'poiuy';
-    public string $dsn = "mysql:host='localhost';dbname='console;port=3306";
-    public array $opts = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
-    ];
-
     public static function getConnection(): PDO
     {
-        global $user, $pass, $dsn, $opts;
+        $user = 'user';
+        $pass = 'poiuy';
+        $dsn = "mysql:host=localhost;dbname=console;port=3306";
+        $opts = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ];
 
         try {
             $pdo = new PDO($dsn, $user, $pass, $opts);
