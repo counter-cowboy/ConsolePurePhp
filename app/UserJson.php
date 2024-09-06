@@ -11,14 +11,19 @@ class UserJson implements UserInterface
 {
     public string $dataFile = 'users.json';
 
-    public function getUsers(): void
+    public function getJsonData()
     {
         $data = file_get_contents($this->dataFile);
-        $users = json_decode($data, true);
+        return json_decode($data, true);
+    }
+
+    public function getUsers(): void
+    {
+        $users = $this->getJsonData();
 
         if (!empty($users)) {
-            echo "User list:\n";
-            echo "ID---Name--------------Email\n";
+
+            echo "\nUser list:\n\nID---Name--------------Email\n\n";
 
             foreach ($users as $user) {
                 echo $user['id'] . ' - '
@@ -30,10 +35,14 @@ class UserJson implements UserInterface
         }
     }
 
+    public function showUsers(): void
+    {
+
+    }
+
     public function saveUsers(): void
     {
-        $data = file_get_contents($this->dataFile);
-        $users = json_decode($data, true);
+        $users = $this->getJsonData();
         $id = $this->generateId();
         $name = Service:: generateName();
         $lastName = Service::generateLastName();
@@ -50,11 +59,14 @@ class UserJson implements UserInterface
 
         $data = json_encode($users);
         file_put_contents($this->dataFile, $data);
+
+        echo "User added:\n
+        ID = $id  name - $fullName  email - $email";
     }
 
     public function generateId(): int
     {
-        $users = $this->getUsers();
+        $users = $this->getJsonData();
 
         if (empty($users)) {
             return 1;
@@ -64,18 +76,23 @@ class UserJson implements UserInterface
 
     public function deleteUser($id): void
     {
-        $users = $this->getUsers();
+        $users = $this->getJsonData();
+        $isDeleted = false;
 
         foreach ($users as $key => $user) {
             if ($user['id'] == $id) {
 
                 unset($users[$key]);
 
-                file_put_contents($this->dataFile, json_encode($users));
+                $isDeleted = file_put_contents($this->dataFile, json_encode($users));
 
-                echo "User deleted - $id\n";
+                echo "User deleted - ID $id\n";
                 break;
             }
         }
+        if (!$isDeleted) {
+            echo "User ID not found";
+        }
+
     }
 }

@@ -2,6 +2,7 @@
 
 use app\UserJson;
 use app\UserMysql;
+use Pattern\Strategy;
 use Services\Service;
 
 header('Content-Type:application/json');
@@ -11,90 +12,35 @@ require_once 'app/UserMysql.php';
 require_once 'DB/DB.php';
 require_once 'Services/Service.php';
 require_once 'Interfaces/UserInterface.php';
+require_once 'Pattern/Strategy.php';
 
 $envArr = explode('=', file_get_contents('.env'));
 
-// Когда будет вторая часть - вытащим это всё в отдельные сервисы.
-
-$service = new Service();
 $userJson = new UserJson();
 $userMysql = new UserMysql();
 
 if ($envArr[1] === 'json') {
 
-    $dataFile = 'users.json';
-
     if (isset($argv[1])) {
-        switch ($argv[1]) {
-            case 'list':
-                 $userJson->getUsers();
 
+        $arg2 = $argv[2] ?? null;
 
-                break;
-
-            case 'add':
-               $userJson->saveUsers();
-
-                break;
-
-            case 'delete':
-                if (isset($argv[2])) {
-                    $id = (int)$argv[2];
-
-                    $userJson->deleteUser($id);
-                } else {
-                    echo "User ID was not set.\n";
-                }
-                break;
-
-            case 'help':
-               Service::help();
-                break;
-
-            default:
-                echo "Unknown command";
-        }
+        Strategy:: strategyCode($userJson, $argv[1], $arg2);
 
     } else {
         echo "Enter a command! Input 'help' for list of available commands. \n";
     }
-} /*
-  * Stage 2
-  *
-  * MySQL
-  *
-  */
-elseif ($envArr[1] === 'mysql') {
+} elseif ($envArr[1] === 'mysql') {
 
     if (isset($argv[1])) {
-        switch ($argv[1]) {
-            case 'list':
-                $userMysql->getUsers();
-                break;
 
-            case 'add':
-                $userMysql->saveUsers();
-                break;
+        $arg2 = $argv[2] ?? null;
 
-            case 'delete':
-                if (isset($argv[2])) {
-                    $id = (int)$argv[2];
-                    $userMysql->deleteUser($id);
-                } else {
-                    echo "User ID was not set.\n";
-                }
-                break;
-
-            case 'help':
-                Service::help();
-                break;
-
-            default:
-                echo "Unknown command";
-        }
+        Strategy::strategyCode($userMysql, $argv[1], $arg2);
 
     } else {
         echo "Enter a command! Input 'help' for list of available commands. \n";
     }
+
 
 }
