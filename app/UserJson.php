@@ -11,7 +11,7 @@ class UserJson implements UserInterface
 {
     public string $dataFile = 'users.json';
 
-    public function getJsonData()
+    public function getJsonData():array
     {
         $data = file_get_contents($this->dataFile);
         return json_decode($data, true);
@@ -35,10 +35,6 @@ class UserJson implements UserInterface
         }
     }
 
-    public function showUsers(): void
-    {
-
-    }
 
     public function saveUsers(): void
     {
@@ -61,7 +57,8 @@ class UserJson implements UserInterface
         file_put_contents($this->dataFile, $data);
 
         echo "User added:\n
-        ID = $id  name - $fullName  email - $email";
+            ID = $id  name - $fullName
+            email - $email";
     }
 
     public function generateId(): int

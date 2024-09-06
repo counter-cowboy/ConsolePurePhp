@@ -4,15 +4,23 @@ namespace app;
 
 use DB\DB;
 use Interfaces\UserInterface;
+use PDO;
 use Services\Service;
-
 
 class UserMysql implements UserInterface
 {
+    public PDO $pdo;
+
+    public function __construct()
+    {
+        $this->pdo = DB::getConnection();
+    }
+
     public function getUsers(): void
     {
-        $pdo = DB::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM users");
+//        $pdo = DB::getConnection();
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users");
         $stmt->execute();
         $users = $stmt->fetchAll(2);
 
@@ -20,7 +28,7 @@ class UserMysql implements UserInterface
             echo "ID --Name-------------Email\n\n";
 
             foreach ($users as $user) {
-                echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email']."\n\n";
+                echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email'] . "\n\n";
             }
         } else {
             echo 'No users found';
@@ -29,26 +37,22 @@ class UserMysql implements UserInterface
 
     public function saveUsers(): void
     {
-        $pdo = DB::getConnection();
-
-        $name =Service:: generateName();
-        $lastName =Service::generateLastName();
+        $name = Service:: generateName();
+        $lastName = Service::generateLastName();
         $fullName = $name . ' ' . $lastName;
         $email = Service::generateEmail($name, $lastName);
 
-        $stmt = $pdo->prepare("INSERT INTO users(name, email) VALUES (?,?)");
+        $stmt = $this->pdo->prepare("INSERT INTO users(name, email) VALUES (?,?)");
         $stmt->execute([$fullName, $email]);
 
-        $id = $pdo->lastInsertId();
+        $id = $this->pdo->lastInsertId();
 
         echo "User was added: id = $id, name - $name, email - $email";
     }
 
     public function deleteUser($id): void
     {
-        $pdo = DB::getConnection();
-
-        $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+        $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = ?');
         $stmt->execute([$id]);
 
         $rowCount = $stmt->rowCount();
@@ -58,6 +62,4 @@ class UserMysql implements UserInterface
         else
             echo 'Not User-ID found';
     }
-
-
 }
