@@ -2,7 +2,7 @@
 
 namespace Interfaces;
 
-interface UserInterface
+interface UserRepositoryInterface
 {
     public function  getUsers();
 

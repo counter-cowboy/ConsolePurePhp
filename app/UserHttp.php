@@ -6,7 +6,7 @@ class UserHttp
 {
     public static function db()
     {
-        return UserMysql::getConnection();
+        return UserRepositoryMysql::getConnection();
     }
 
     public static function listUsers(): void

@@ -1,24 +1,22 @@
 <?php
 
-use app\UserJson;
-use app\UserMysql;
+use app\UserRepositoryJson;
+use app\UserRepositoryMysql;
 use Pattern\Strategy;
-use Services\Service;
 
 header('Content-Type:application/json');
 
-require_once 'app/UserJson.php';
-require_once 'app/UserMysql.php';
+require_once 'app/UserRepositoryJson.php';
+require_once 'app/UserRepositoryMysql.php';
 require_once 'DB/DB.php';
-require_once 'Services/Service.php';
-require_once 'Interfaces/UserInterface.php';
+require_once 'Interfaces/UserRepositoryInterface.php';
 require_once 'Pattern/Strategy.php';
 require_once 'Factories/Factory.php';
 
 $envArr = explode('=', file_get_contents('.env'));
 
-$userJson = new UserJson();
-$userMysql = new UserMysql();
+$userJson = new UserRepositoryJson();
+$userMysql = new UserRepositoryMysql();
 
 if ($envArr[1] === 'json') {
 

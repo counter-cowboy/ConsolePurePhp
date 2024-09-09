@@ -4,10 +4,10 @@ namespace app;
 
 use DB\DB;
 use Factories\Factory;
-use Interfaces\UserInterface;
+use Interfaces\UserRepositoryInterface;
 use PDO;
 
-class UserMysql implements UserInterface
+class UserRepositoryMysql implements UserRepositoryInterface
 {
     public PDO $pdo;
 
@@ -35,8 +35,8 @@ class UserMysql implements UserInterface
 
     public function saveUsers(): void
     {
-        $fullName = Factory::userFactory()['name'];
-        $email = Factory::userFactory()['email'];
+        $fullName =  (new Factory())->userFactory()['name'];
+        $email =  (new Factory())->userFactory()['email'];
 
         $stmt = $this->pdo->prepare("INSERT INTO users(name, email) VALUES (?,?)");
         $stmt->execute([$fullName, $email]);
@@ -46,8 +46,7 @@ class UserMysql implements UserInterface
         echo "User was added: id = $id, name - $fullName, email - $email";
     }
 
-    public
-    function deleteUser($id): void
+    public function deleteUser($id): void
     {
         $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = ?');
         $stmt->execute([$id]);

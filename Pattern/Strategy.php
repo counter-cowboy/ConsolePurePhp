@@ -2,15 +2,14 @@
 
 namespace Pattern;
 
-require_once 'Interfaces/UserInterface.php';
-require_once 'Services/Service.php';
+require_once 'Interfaces/UserRepositoryInterface.php';
+require_once 'Services/HelpCommand.php';
 
-use Interfaces\UserInterface;
-use Services\Service;
-
+use Interfaces\UserRepositoryInterface;
+use Services\HelpCommand;
 class Strategy
 {
-    public static function strategyCode(UserInterface $user, $arg1, $arg2 = null): void
+    public static function strategyCode(UserRepositoryInterface $user, $arg1, $arg2 = null): void
     {
         switch ($arg1) {
             case 'list':
@@ -31,7 +30,7 @@ class Strategy
                 break;
 
             case 'help':
-                Service::help();
+                HelpCommand::help();
                 break;
 
             default:

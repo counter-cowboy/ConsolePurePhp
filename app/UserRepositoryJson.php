@@ -3,12 +3,11 @@
 namespace app;
 
 use Factories\Factory;
-use Interfaces\UserInterface;
-use Services\Service;
+use Interfaces\UserRepositoryInterface;
 
-require_once 'Interfaces/UserInterface.php';
+require_once 'Interfaces/UserRepositoryInterface.php';
 
-class UserJson implements UserInterface
+class UserRepositoryJson implements UserRepositoryInterface
 {
     public string $dataFile = 'users.json';
 
@@ -42,8 +41,8 @@ class UserJson implements UserInterface
         $users = $this->getJsonData();
         $id = $this->generateId();
 
-        $fullName = Factory::userFactory()['name'];
-        $email = Factory::userFactory()['email'];
+        $fullName =( new Factory())->userFactory()['name'];
+        $email =  (new Factory())->userFactory()['email'];
 
         $newUser = [
             'id' => $id,
