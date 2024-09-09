@@ -2,6 +2,7 @@
 
 namespace app;
 
+use Factories\Factory;
 use Interfaces\UserInterface;
 use Services\Service;
 
@@ -11,7 +12,7 @@ class UserJson implements UserInterface
 {
     public string $dataFile = 'users.json';
 
-    public function getJsonData():array
+    public function getJsonData(): array
     {
         $data = file_get_contents($this->dataFile);
         return json_decode($data, true);
@@ -40,10 +41,9 @@ class UserJson implements UserInterface
     {
         $users = $this->getJsonData();
         $id = $this->generateId();
-        $name = Service:: generateName();
-        $lastName = Service::generateLastName();
-        $fullName = $name . ' ' . $lastName;
-        $email = Service::generateEmail($name, $lastName);
+
+        $fullName = Factory::userFactory()['name'];
+        $email = Factory::userFactory()['email'];
 
         $newUser = [
             'id' => $id,

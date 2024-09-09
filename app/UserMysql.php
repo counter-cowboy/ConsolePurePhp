@@ -3,9 +3,9 @@
 namespace app;
 
 use DB\DB;
+use Factories\Factory;
 use Interfaces\UserInterface;
 use PDO;
-use Services\Service;
 
 class UserMysql implements UserInterface
 {
@@ -18,48 +18,44 @@ class UserMysql implements UserInterface
 
     public function getUsers(): void
     {
-//        $pdo = DB::getConnection();
-
         $stmt = $this->pdo->prepare("SELECT * FROM users");
         $stmt->execute();
         $users = $stmt->fetchAll(2);
 
-        if (!empty($users)) {
-            echo "ID --Name-------------Email\n\n";
-
-            foreach ($users as $user) {
-                echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email'] . "\n\n";
-            }
-        } else {
+        if (empty($users)) {
             echo 'No users found';
+        }
+
+        echo "ID --Name-------------Email\n\n";
+
+        foreach ($users as $user) {
+            echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email'] . "\n\n";
         }
     }
 
     public function saveUsers(): void
     {
-        $name = Service:: generateName();
-        $lastName = Service::generateLastName();
-        $fullName = $name . ' ' . $lastName;
-        $email = Service::generateEmail($name, $lastName);
+        $fullName = Factory::userFactory()['name'];
+        $email = Factory::userFactory()['email'];
 
         $stmt = $this->pdo->prepare("INSERT INTO users(name, email) VALUES (?,?)");
         $stmt->execute([$fullName, $email]);
 
         $id = $this->pdo->lastInsertId();
 
-        echo "User was added: id = $id, name - $name, email - $email";
+        echo "User was added: id = $id, name - $fullName, email - $email";
     }
 
-    public function deleteUser($id): void
+    public
+    function deleteUser($id): void
     {
         $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = ?');
         $stmt->execute([$id]);
 
-        $rowCount = $stmt->rowCount();
-
-        if ($rowCount > 0)
+        if ($stmt->rowCount() > 0) {
             echo "User was deleted: ID - $id, ";
-        else
+        } else {
             echo 'Not User-ID found';
+        }
     }
 }

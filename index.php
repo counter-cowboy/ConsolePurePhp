@@ -13,6 +13,7 @@ require_once 'DB/DB.php';
 require_once 'Services/Service.php';
 require_once 'Interfaces/UserInterface.php';
 require_once 'Pattern/Strategy.php';
+require_once 'Factories/Factory.php';
 
 $envArr = explode('=', file_get_contents('.env'));
 
