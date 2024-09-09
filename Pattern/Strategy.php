@@ -9,7 +9,7 @@ use Interfaces\UserRepositoryInterface;
 use Services\HelpCommand;
 class Strategy
 {
-    public static function strategyCode(UserRepositoryInterface $user, $arg1, $arg2 = null): void
+    public static function strategyCode(UserRepositoryInterface $user, $arg1, $arg2 = null)
     {
         switch ($arg1) {
             case 'list':

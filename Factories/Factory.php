@@ -6,7 +6,6 @@ class Factory
 {
     public  function userFactory(): array
     {
-
         $name = $this-> generateName();
         $lastName =$this->generateLastName();
         $fullName = $name . ' ' . $lastName;

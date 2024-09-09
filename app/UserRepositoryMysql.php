@@ -16,7 +16,7 @@ class UserRepositoryMysql implements UserRepositoryInterface
         $this->pdo = DB::getConnection();
     }
 
-    public function getUsers(): void
+    public function getUsers()
     {
         $stmt = $this->pdo->prepare("SELECT * FROM users");
         $stmt->execute();
@@ -24,19 +24,20 @@ class UserRepositoryMysql implements UserRepositoryInterface
 
         if (empty($users)) {
             echo 'No users found';
+        } else {
+            echo "ID --Name-------------Email\n\n";
+
+            foreach ($users as $user) {
+                echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email'] . "\n\n";
+            }
         }
 
-        echo "ID --Name-------------Email\n\n";
-
-        foreach ($users as $user) {
-            echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email'] . "\n\n";
-        }
     }
 
     public function saveUsers(): void
     {
-        $fullName =  (new Factory())->userFactory()['name'];
-        $email =  (new Factory())->userFactory()['email'];
+        $fullName = (new Factory())->userFactory()['name'];
+        $email = (new Factory())->userFactory()['email'];
 
         $stmt = $this->pdo->prepare("INSERT INTO users(name, email) VALUES (?,?)");
         $stmt->execute([$fullName, $email]);

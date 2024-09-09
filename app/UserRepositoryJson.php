@@ -17,7 +17,7 @@ class UserRepositoryJson implements UserRepositoryInterface
         return json_decode($data, true);
     }
 
-    public function getUsers(): void
+    public function getUsers()
     {
         $users = $this->getJsonData();
 
@@ -33,6 +33,7 @@ class UserRepositoryJson implements UserRepositoryInterface
         } else {
             echo "No users in list";
         }
+        return json_encode($users);
     }
 
 
