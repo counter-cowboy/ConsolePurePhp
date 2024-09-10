@@ -80,7 +80,7 @@ class UserController
 
         if ($env === 'json') {
             if ($method === 'GET' && $command === 'list') {
-                $users[]=$repository->getJsonData();
+                $users=$repository->getJsonData();
 
                 if (!empty($users)) {
                     echo json_encode($users);
