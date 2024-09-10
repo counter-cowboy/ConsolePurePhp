@@ -24,12 +24,14 @@ class UserRepositoryMysql implements UserRepositoryInterface
 
         if (empty($users)) {
             echo 'No users found';
+
         } else {
             echo "ID --Name-------------Email\n\n";
 
             foreach ($users as $user) {
                 echo $user['id'] . ' - ' . $user['name'] . ' - ' . $user['email'] . "\n\n";
             }
+
         }
 
     }

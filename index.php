@@ -4,7 +4,7 @@
 use Controllers\UserController;
 
 
-//header('Content-Type:application/json');
+header('Content-Type: json/application');
 
 require_once 'app/UserRepositoryJson.php';
 require_once 'app/UserRepositoryMysql.php';

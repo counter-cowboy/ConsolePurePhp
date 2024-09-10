@@ -52,6 +52,7 @@ class UserRepositoryJson implements UserRepositoryInterface
         ];
 
         $users[] = $newUser;
+        $users=array_keys($users);
 
         $data = json_encode($users);
         file_put_contents($this->dataFile, $data);
