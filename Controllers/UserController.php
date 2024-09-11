@@ -2,57 +2,44 @@
 
 namespace Controllers;
 
+use app\UserRepositoryHttpJson;
+use app\UserRepositoryHttpMysql;
 use app\UserRepositoryJson;
 use app\UserRepositoryMysql;
 use DB\DB;
 use Pattern\Strategy;
 use PDO;
+use Reporter\Reporter;
 
 class UserController
 {
-    public PDO $pdo;
+    public Reporter $reporter;
 
     public function __construct()
     {
-        $this->pdo = DB::getConnection();
+        $this->reporter=new Reporter ();
     }
 
     public function index(array $envArr, $arg1 = null, $arg2 = null, $server = null)
     {
         if ($envArr[1] === 'json') {
             if (isset($arg1)) {
-                $this->jsonConsoleAction($arg1, $arg2);
+                Strategy:: strategyCode(new UserRepositoryJson(), $arg1, $arg2);
+
             } elseif (isset($server)) {
-                $this->httpAction($server, new UserRepositoryJson(), $envArr[1]);
+                $this->httpAction($server, new UserRepositoryHttpJson(), $envArr[1]);
+
             }
         } elseif ($envArr[1] === 'mysql') {
             if (isset($arg1)) {
-                $this->mysqlConsoleAction($arg1, $arg2);
+                Strategy::strategyCode(new UserRepositoryMysql(), $arg1, $arg2);
+
             } elseif (isset($server)) {
-                $this->httpAction($server, new UserRepositoryMysql(), $envArr[1]);
+                $this->httpAction($server, new UserRepositoryHttpMysql(), $envArr[1]);
             }
         }
     }
 
-    public function jsonConsoleAction($arg1, $arg2 = null): void
-    {
-        if (isset($arg1)) {
-            Strategy:: strategyCode(new UserRepositoryJson(), $arg1, $arg2);
-
-        } else {
-            echo "Enter a command! Input 'help' for list of available commands. \n";
-        }
-    }
-
-    public function mysqlConsoleAction($arg1, $arg2 = null): void
-    {
-        if (isset($arg1)) {
-            Strategy::strategyCode(new UserRepositoryMysql(), $arg1, $arg2);
-
-        } else {
-            echo "Enter a command! Input 'help' for list of available commands. \n";
-        }
-    }
 
     public function httpAction($server, $repository, $env)
     {
@@ -80,106 +67,56 @@ class UserController
 
         if ($env === 'json') {
             if ($method === 'GET' && $command === 'list') {
-                $users=$repository->getJsonData();
+                $users = $repository->getUsers();
 
-                if (!empty($users)) {
-                    echo json_encode($users);
-
-                }else{
-                    http_response_code(404);
-                    echo json_encode([
-                        'status' => false,
-                        'message' => 'No users found'
-                    ]);
-                }
+              $this->reporter->httpReportList($users);
 
 
-            } elseif ($method === 'POST' ) {
+            } elseif ($method === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
 
                 if (empty($data['name']) || empty($data['email'])) {
-
-                    echo json_encode(['error' => 'Name and Email required']);
+                    http_response_code(400);
+                    echo json_encode(['status'=>false,
+                        'error' => 'Name and Email required']);
 
                 } else {
-                    $name = $data['name'];
-                    $email = $data['email'];
+                    $user=$repository->addUser($data);
+                  $this->reporter->httpReportAdd($user);
 
-                    $users = $repository->getJsonData();
-                    $id = $repository->generateId();
-
-                    $users[] = [
-                        'id' => $id,
-                        'name' => $name,
-                        'email' => $email
-                    ];
-                    $data = json_encode($users);
-                    file_put_contents($repository->dataFile, $data);
-
-                    echo json_encode([
-                        'status' => 'ok',
-                        'user' => [
-                            'id' => $id,
-                            'name' => $name,
-                            'email' => $email
-                        ]
-                    ]);
                 }
 
             } elseif ($method === 'DELETE' && $command === 'delete') {
-                Strategy::strategyCode($repository, $command, $id);
+                $isDeleted= $repository->deleteUser($id);
+                $this->reporter->httpReportDelete($isDeleted, $id);
             }
         }
+        //MySQL working
 
         elseif ($env === 'mysql') {
             if ($method === 'GET' && $command === 'list') {
 
-                $stmt = $this->pdo->prepare("SELECT * FROM users");
-                $stmt->execute();
-                $users = $stmt->fetchAll(2);
+                $users=$repository->getUsers();
+                $this->reporter->httpReportList($users);
 
-                echo json_encode($users);
 
-            } elseif ($method === 'POST' && isset($_POST) && $command==='add') {
+            }
+            elseif ($method === 'POST' && isset($_POST) && $command === 'add') {
                 $data = json_decode(file_get_contents('php://input'), true);
 
-
                 if (empty($data['name'] || empty($data['email']))) {
-                    echo json_encode(['error' => 'Name and Email required']);
+                    $this->reporter->badQuery();
+
                 } else {
-                    $name = $this->sanitize($data['name']);
-                    $email = $this->sanitize($data['email']);
-
-                    $stmt = $this->pdo->prepare("INSERT INTO users(name, email) VALUES (?,?)");
-                    $stmt->execute([$name, $email]);
-
-                    $id = $this->pdo->lastInsertId();
-                    echo json_encode([
-                        'status' => 'ok',
-                        'user' => [
-                            'id' => $id,
-                            'name' => $name,
-                            'email' => $email
-                        ]
-                    ]);
+                    $user = $repository->addUser($data);
+                   $this->reporter->httpReportAdd($user);
                 }
 
             } elseif ($method === 'DELETE' && $command === 'delete') {
-                $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = ?');
-                $stmt->execute([$id]);
+               $isDeleted= $repository->deleteUser($id);
 
-                if ($stmt->rowCount() > 0) {
-                    http_response_code(200);
-                    echo json_encode([
-                        'status'=>'ok',
-                        'message'=>"User was deleted: ID - $id"]);
-                } else {
-                    http_response_code(404);
-                    echo json_encode([
-                        'status'=>false,
-                        'message'=>'Not User-ID found'
-                    ] );
-                }
+              $this->reporter->httpReportDelete($isDeleted, $id);
+
             }
         }
     }

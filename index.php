@@ -13,6 +13,9 @@ require_once 'Interfaces/UserRepositoryInterface.php';
 require_once 'Pattern/Strategy.php';
 require_once 'Factories/Factory.php';
 require_once 'Controllers/UserController.php';
+require_once 'Reporter/Reporter.php';
+require_once 'app/UserRepositoryHttpMysql.php';
+require_once 'app/UserRepositoryHttpJson.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);

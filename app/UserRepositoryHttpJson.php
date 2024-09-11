@@ -4,56 +4,62 @@ namespace app;
 
 use Factories\Factory;
 use Interfaces\UserRepositoryInterface;
-use Reporter\Reporter;
 
-require_once 'Interfaces/UserRepositoryInterface.php';
-
-class UserRepositoryJson implements UserRepositoryInterface
+class UserRepositoryHttpJson implements UserRepositoryInterface
 {
-    public Factory $factory;
-    public Reporter $reporter;
     public string $dataFile = 'users.json';
-    public function __construct()
-    {
-        $this->factory=new Factory();
-        $this->reporter=new Reporter();
-    }
 
-    public function getJsonData()
+    public function getJsonData(): array
     {
         $data = file_get_contents($this->dataFile);
         return json_decode($data, true);
     }
 
-    public function getUsers()
+    public function getUsers(): array
     {
-        $users = $this->getJsonData();
-        $this->reporter->consoleReportList($users);
+        return $this->getJsonData();
     }
 
 
-    public function saveUsers(): void
+    public function saveUsers(): array
     {
         $users = $this->getJsonData();
         $id = $this->generateId();
-        $userData=$this->factory->userFactory();
 
-        $fullName =$userData['name'];
-        $email =  $userData['email'];
+        $fullName = (new Factory())->userFactory()['name'];
+        $email = (new Factory())->userFactory()['email'];
 
-        $newUser = [
+        $users[] = [
             'id' => $id,
             'name' => $fullName,
             'email' => $email
         ];
 
-        $users[] = $newUser;
+        $users = array_keys($users);
 
         $data = json_encode($users);
         file_put_contents($this->dataFile, $data);
 
-        $this->reporter->consoleReportAdd($newUser);
+        return $users;
+    }
 
+    public function addUser($data): array
+    {
+        $name = $data['name'];
+        $email = $data['email'];
+
+        $users = $this->getUsers();
+        $id = $this->generateId();
+
+       $user = [
+            'id' => $id,
+            'name' => $name,
+            'email' => $email
+        ];
+       $users[]=$user;
+        $data = json_encode($users);
+        file_put_contents($this->dataFile, $data);
+        return $user;
     }
 
     public function generateId(): int
@@ -66,20 +72,23 @@ class UserRepositoryJson implements UserRepositoryInterface
         return end($users)['id'] + 1;
     }
 
-    public function deleteUser($id): void
+    public function deleteUser($id)
     {
         $users = $this->getJsonData();
         $isDeleted = false;
 
         foreach ($users as $key => $user) {
             if ($user['id'] == $id) {
+
                 unset($users[$key]);
 
                 $isDeleted = file_put_contents($this->dataFile, json_encode($users));
-
                 break;
             }
         }
-        $this->reporter->consoleReportDelete($isDeleted, $id);
+        if (!$isDeleted) {
+            echo "User ID not found";
+        }
+        return $isDeleted;
     }
 }
