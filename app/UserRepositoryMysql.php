@@ -12,11 +12,13 @@ class UserRepositoryMysql implements UserRepositoryInterface
 {
     public Reporter $reporter;
     public PDO $pdo;
+    public Factory $factory;
 
     public function __construct()
     {
         $this->reporter = new Reporter();
         $this->pdo = DB::getConnection();
+        $this->factory=new Factory();
     }
 
     public function getUsers()
@@ -29,8 +31,8 @@ class UserRepositoryMysql implements UserRepositoryInterface
 
     public function saveUsers(): void
     {
-        $fullName = (new Factory())->userFactory()['name'];
-        $email = (new Factory())->userFactory()['email'];
+        $fullName = $this->factory->userFactory()['name'];
+        $email = $this->factory->userFactory()['email'];
 
         $stmt = $this->pdo
             ->prepare("INSERT INTO users(name, email) VALUES (?,?)");
